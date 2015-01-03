@@ -9,7 +9,6 @@
 
 /* 
  * TODO
- * make MAX_DATA and MAX_ROWS changeable
  * Add an operation for find
  * Look into C struct packing
  * Add fields to Address that can be searchable
@@ -157,6 +156,20 @@ void Database_list(struct Connection *conn)
   }
 }
 
+struct Address *Database_find_by_email(struct Connection *conn, char *email)
+{
+  struct Address *match;
+  struct Database *db = conn->db;
+  for(int i = 0; i < MAX_ROWS; i++) {
+    struct Address *cur = &db->rows[i];
+    
+    if(strcmp(&cur->email, email)) {
+      match = cur;
+    }
+  }
+  return match;
+}
+
 int main(int argc, char *argv[])
 {
   if(argc < 3) die("USAGE: ex17 <dbfile> <action> [action params]", NULL);
@@ -197,6 +210,11 @@ int main(int argc, char *argv[])
 
    case '1':
       Database_list(conn);
+      break;
+   case 'f':
+      char *email= argv[2][0];
+      struct Address *addr = Database_find_by_email(conn,email)
+      printf("I found %s", addr->name);
       break;
    default:
       die("Invalid action, only: c=create, g=get, s=set, d=del, l=list", conn);
